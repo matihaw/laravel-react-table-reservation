@@ -40,6 +40,7 @@ interface AvailabilityResponse {
 
 const DayDialog = ({ date, setOpen }: Props) => {
     const [disabledDates, setDisabledDates] = useState([])
+    const [maxPeople, setMaxPeople] = useState(20)
     const { data, setData, post, processing, reset } = useForm<FormInterface>({
         name: '',
         email: '',
@@ -87,7 +88,15 @@ const DayDialog = ({ date, setOpen }: Props) => {
             })
             .then(response => response.data)
             .then(data => {
-                setDisabledDates(data.map(d => dayjs(d).hour()))
+                setDisabledDates(
+                    data.map(d => dayjs(d.reservation_date_time).hour()),
+                )
+                setMaxPeople(
+                    data.reduce(
+                        (pertial, d) => pertial + d.number_of_people,
+                        0,
+                    ),
+                )
             })
     }, [date])
 
@@ -147,11 +156,14 @@ const DayDialog = ({ date, setOpen }: Props) => {
                                 }
                                 label="Number of People"
                             >
-                                {[...Array(8).keys()].map(i => (
-                                    <MenuItem key={i + 1} value={i + 1}>
-                                        {i + 1}
-                                    </MenuItem>
-                                ))}
+                                {[...Array(8).keys()].map(
+                                    i =>
+                                        1 + i + maxPeople < 15 && (
+                                            <MenuItem key={i + 1} value={i + 1}>
+                                                {i + 1}
+                                            </MenuItem>
+                                        ),
+                                )}
                             </Select>
                         </FormControl>
                         <FormControl fullWidth margin="dense">

@@ -12,7 +12,7 @@ class ReservationAvailabilityController
     {
         $date = $request->validated('reservation_date_time');
 
-        $alreadyReserved = Reservation::whereDate('reservation_date_time', $date)->pluck('reservation_date_time');
+        $alreadyReserved = Reservation::whereDate('reservation_date_time', $date)->get(['reservation_date_time', 'number_of_people']);
 
         return response()->json($alreadyReserved);
     }
